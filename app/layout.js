@@ -13,6 +13,9 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "OLX",
+  icons: {
+    icon: "/olx-logo.png",
+  },
   description: "Feature Ad",
 };
 
