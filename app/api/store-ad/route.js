@@ -39,12 +39,13 @@ export async function POST(req) {
   try {
     // Validate request body
     const body = await req.json();
-    if (!body || !body.tier || !body.location || !body.image) {
-      return new Response(
-        JSON.stringify({ message: "Missing required fields" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
+    console.log("Received body:", body);
+    // if (!body || !body.tier || !body.location || !body.image) {
+    //   return new Response(
+    //     JSON.stringify({ message: "Missing required fields" }),
+    //     { status: 400, headers: { "Content-Type": "application/json" } }
+    //   );
+    // }
 
     const { tier, location, image, timestamp } = body;
 
