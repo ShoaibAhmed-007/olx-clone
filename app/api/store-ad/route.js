@@ -33,6 +33,86 @@
 //   }
 // }
 
+// import clientPromise from "@/lib/mongodb";
+
+// export async function POST(req) {
+//   try {
+//     // Validate request body
+//     const body = await req.json();
+//     console.log("Received body:", body);
+//     // if (!body || !body.tier || !body.location || !body.image) {
+//     //   return new Response(
+//     //     JSON.stringify({ message: "Missing required fields" }),
+//     //     { status: 400, headers: { "Content-Type": "application/json" } }
+//     //   );
+//     // }
+
+//     const { tier, location, image, timestamp } = body;
+
+//     // Validate and process image data
+//     let processedImage = image;
+//     if (image.startsWith("data:")) {
+//       // Remove metadata if present
+//       processedImage = image.split(",")[1];
+//     }
+
+//     // Process timestamp
+//     const processedTimestamp = timestamp ? new Date(timestamp) : new Date();
+
+//     const client = await clientPromise;
+//     const db = client.db(process.env.MONGODB_DB || "your-db-name");
+//     const collection = db.collection("featuredAds"); // Consistent collection name
+
+//     // Insert document with proper data types
+//     const result = await collection.insertOne({
+//       tier: {
+//         title: tier.title,
+//         price: tier.price,
+//         discountPrice: tier.discountPrice || null,
+//         duration: tier.duration,
+//         features: tier.features || [],
+//       },
+//       location: {
+//         latitude: parseFloat(location.latitude),
+//         longitude: parseFloat(location.longitude),
+//       },
+//       image: processedImage,
+//       timestamp: processedTimestamp,
+//       createdAt: new Date(), // Additional audit field
+//     });
+
+//     return new Response(
+//       JSON.stringify({
+//         success: true,
+//         id: result.insertedId,
+//         timestamp: processedTimestamp.toISOString(),
+//       }),
+//       {
+//         status: 201, // 201 Created for successful resource creation
+//         headers: {
+//           "Content-Type": "application/json",
+//           "Cache-Control": "no-store", // Prevent caching of sensitive data
+//         },
+//       }
+//     );
+//   } catch (error) {
+//     console.error("Error storing ad:", error);
+//     return new Response(
+//       JSON.stringify({
+//         message: "Internal server error",
+//         ...(process.env.NODE_ENV === "development" && {
+//           error: error.message,
+//           stack: error.stack,
+//         }),
+//       }),
+//       {
+//         status: 500,
+//         headers: { "Content-Type": "application/json" },
+//       }
+//     );
+//   }
+// }
+
 import clientPromise from "@/lib/mongodb";
 
 export async function POST(req) {
@@ -40,12 +120,6 @@ export async function POST(req) {
     // Validate request body
     const body = await req.json();
     console.log("Received body:", body);
-    // if (!body || !body.tier || !body.location || !body.image) {
-    //   return new Response(
-    //     JSON.stringify({ message: "Missing required fields" }),
-    //     { status: 400, headers: { "Content-Type": "application/json" } }
-    //   );
-    // }
 
     const { tier, location, image, timestamp } = body;
 
@@ -59,9 +133,15 @@ export async function POST(req) {
     // Process timestamp
     const processedTimestamp = timestamp ? new Date(timestamp) : new Date();
 
+    // Set default location if not provided
+    const processedLocation = location || {
+      latitude: 31.56636654896451,
+      longitude: 74.41357004052487,
+    };
+
     const client = await clientPromise;
     const db = client.db(process.env.MONGODB_DB || "your-db-name");
-    const collection = db.collection("featuredAds"); // Consistent collection name
+    const collection = db.collection("featuredAds");
 
     // Insert document with proper data types
     const result = await collection.insertOne({
@@ -73,12 +153,12 @@ export async function POST(req) {
         features: tier.features || [],
       },
       location: {
-        latitude: parseFloat(location.latitude),
-        longitude: parseFloat(location.longitude),
+        latitude: parseFloat(processedLocation.latitude),
+        longitude: parseFloat(processedLocation.longitude),
       },
       image: processedImage,
       timestamp: processedTimestamp,
-      createdAt: new Date(), // Additional audit field
+      createdAt: new Date(),
     });
 
     return new Response(
@@ -88,10 +168,10 @@ export async function POST(req) {
         timestamp: processedTimestamp.toISOString(),
       }),
       {
-        status: 201, // 201 Created for successful resource creation
+        status: 201,
         headers: {
           "Content-Type": "application/json",
-          "Cache-Control": "no-store", // Prevent caching of sensitive data
+          "Cache-Control": "no-store",
         },
       }
     );
