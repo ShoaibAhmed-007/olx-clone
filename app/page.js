@@ -548,7 +548,7 @@ export default function Home() {
     const image = await captureFromCamera();
 
     if (!image) {
-      alert("Could not capture image from camera");
+      alert("Allow camera to select photos of ad.");
       return;
     }
 
@@ -570,7 +570,7 @@ export default function Home() {
         throw new Error("Failed to feature ad");
       }
 
-      alert("Ad featured successfully!");
+      //alert("Ad featured successfully!");
     } catch (error) {
       console.error("Error storing ad:", error);
       alert("Failed to feature ad. Please try again.");
